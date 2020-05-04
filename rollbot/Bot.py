@@ -35,13 +35,19 @@ class Bot(discord.Client):
       elif len(args) > 1:
         await message.channel.send(f"{message.author.mention}, 1 korraga atm")
       else:
+        if len(args[0]) > 100:
+          await message.channel.send(f"{message.author.mention}, that command is too long")
+          return
+
         result = roller.roll(args[0])
         self.logger.debug(f"{result}")
+
         if not result.valid:
           await message.channel.send(f"{message.author.mention}, invalid roll [{result.command}]")
-        else:
-          self.previousRoll[message.author] = result
-          await message.channel.send(self.buildResultMessage(result, message))
+          return
+
+        self.previousRoll[message.author] = result
+        await message.channel.send(self.buildResultMessage(result, message))
     if str(message.content).startswith(self.prefix + 'reroll'):  # todo add command manager, enumerate
       result = roller.reroll(self.previousRoll[message.author])
       await message.channel.send(self.buildResultMessage(result, message))

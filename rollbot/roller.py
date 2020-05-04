@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def roll(rollCommand: str):
-  if not re.search('\\d+d\\d+[+-]?\\d+?', rollCommand):
+  if not re.fullmatch('\\d+d\\d+([+-]\\d+)?', rollCommand):
     logger.error(f"Failed to parse {rollCommand}")
     return DiceRoll(rollCommand, valid=False)
   else:
