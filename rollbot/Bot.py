@@ -10,11 +10,13 @@ from rollbot.model.DiceRoll import DiceRoll
 class Bot(discord.Client):
   logger = logging.getLogger(__name__)
   prefix: str
+  build: str
   previousRoll: Dict[discord.User, DiceRoll] = {}
 
-  def __init__(self, commandPrefix='!'):
+  def __init__(self, commandPrefix='!', build='dev'):
     super(Bot, self).__init__()
     self.prefix = commandPrefix
+    self.build = build
     self.logger.info(f"Will be reacting to '{self.prefix}'")
 
   async def on_ready(self):
@@ -51,8 +53,15 @@ class Bot(discord.Client):
     if str(message.content).startswith(self.prefix + 'reroll'):  # todo add command manager, enumerate
       result = roller.reroll(self.previousRoll[message.author])
       await message.channel.send(self.buildResultMessage(result, message))
+    if str(message.content).startswith(self.prefix + 'help'):  # todo add command manager, enumerate
+      await message.channel.send(f"`{self.prefix}roll 2d4+1` - roll 2 d4 dice and add 1\n"
+                                 f"`{self.prefix}reroll`         - reroll your last roll\n"
+                                 f"`{self.prefix}about`           - general info")
+    if str(message.content).startswith(self.prefix + 'about'):  # todo add command manager, enumerate
+      await message.channel.send(f"Build: **{self.build}**\n"
+                                 f"Source: https://github.com/hannilo/rollbot-py")
 
   def buildResultMessage(self, roll: DiceRoll, message: discord.Message):
     return f"{message.author.mention}\n" \
            f"result: {roll}\n" \
-           f"sum ({roll.sum()} {'+' if roll.modifier >= 0 else '-'} {abs(roll.modifier)}) : {roll.sum() + roll.modifier}"
+           f"sum ({roll.sum()} {'+' if roll.modifier >= 0 else '-'} {abs(roll.modifier)}) : **{roll.sum() + roll.modifier}**"
