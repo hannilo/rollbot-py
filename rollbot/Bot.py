@@ -35,21 +35,18 @@ class Bot(discord.Client):
       elif len(args) > 1:
         await message.channel.send(f"{message.author.mention}, 1 korraga atm")
       else:
-        result = list(map(lambda arg: roller.roll(arg), args))
+        result = roller.roll(args[0])
         self.logger.debug(f"{result}")
-        self.previousRoll[message.author] = result[0]
-        await message.channel.send(
-          f"{message.author.mention}\n"
-          f"result: {result}\n"
-          f"sum ({result[0].sum()} {'+' if result[0].modifier >= 0 else '-'} {abs(result[0].modifier)}) : {result[0].sum() + result[0].modifier}"
-        )
+        if not result.valid:
+          await message.channel.send(f"{message.author.mention}, invalid roll [{result.command}]")
+        else:
+          self.previousRoll[message.author] = result
+          await message.channel.send(self.buildResultMessage(result, message))
     if str(message.content).startswith(self.prefix + 'reroll'):  # todo add command manager, enumerate
       result = roller.reroll(self.previousRoll[message.author])
-      await message.channel.send(
-        f"{message.author.mention}\n"
-        f"result: {result}\n"
-        f"sum ({result.sum()} {'+' if result.modifier >= 0 else '-'} {abs(result.modifier)}) : {result.sum() + result.modifier}"
-      )
+      await message.channel.send(self.buildResultMessage(result, message))
 
-  def buildResultMessage(self, rolls: List[DiceRoll]):
-    return 1  # todo
+  def buildResultMessage(self, roll: DiceRoll, message: discord.Message):
+    return f"{message.author.mention}\n" \
+           f"result: {roll}\n" \
+           f"sum ({roll.sum()} {'+' if roll.modifier >= 0 else '-'} {abs(roll.modifier)}) : {roll.sum() + roll.modifier}"

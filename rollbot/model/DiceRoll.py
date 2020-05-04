@@ -5,9 +5,9 @@ from typing import List
 @dataclass
 class DiceRoll:
   command: str
-  diceCount: int
-  diceFaces: int
-  resultList: List[int]
+  resultList: List[int] = List
+  diceCount: int = 0
+  diceFaces: int = 1
   modifier: int = 0
   valid: bool = True
 

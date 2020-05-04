@@ -13,5 +13,5 @@ load_dotenv()
 TOKEN = os.getenv('TOKEN')
 PREFIX = os.getenv('PREFIX')
 
-bot = Bot()
+bot = Bot(PREFIX)
 bot.run(TOKEN)
