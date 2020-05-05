@@ -5,7 +5,7 @@ from typing import Dict
 
 import discord
 
-from rollbot import roller
+from rollbot.Roller import Roller
 from rollbot.config.BotConfig import BotConfig
 from rollbot.model.DiceRoll import DiceRoll
 
@@ -38,12 +38,14 @@ class CommandManager:
 
   prefix: str
   config: BotConfig
+  roller: Roller
 
   previousRoll: Dict[discord.User, DiceRoll] = {}
 
-  def __init__(self, botConfig: BotConfig):
+  def __init__(self, botConfig: BotConfig, roller: Roller):
     self.prefix = botConfig.prefix
     self.config = botConfig
+    self.roller = roller
 
   def handle(self, message: discord.Message) -> CommandResult:
     messageContent = str(message.content)
@@ -68,7 +70,7 @@ class CommandManager:
       elif len(args[0]) > 100:
         return ReplyResult(messageContent, False, f"{message.author.mention}, that command is too long")
 
-      result = roller.roll(args[0])
+      result = self.roller.roll(args[0])
       self.logger.debug(f"{result}")
 
       if not result.valid:
@@ -82,7 +84,7 @@ class CommandManager:
       if previous is None:
         self.logger.info(f"No previous roll for {message.author}")
         return VoidResult(userCommand, False)
-      result = roller.reroll(previous)
+      result = self.roller.reroll(previous)
       return ReplyResult(messageContent, True, _buildResultMessage(result, message))
 
     if botCommand == Command.HELP:
