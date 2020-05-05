@@ -44,7 +44,7 @@ class Roller:
 
   def getResults(self, diceCount: int, diceFaces: int) -> List[int]:
     results = []
-    for i in range(0, diceCount):
+    for _ in range(0, diceCount):
       results.append(self.randomFn(1, diceFaces))
     logger.debug(f"results: {results}")
     return results

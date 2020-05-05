@@ -77,7 +77,7 @@ class CommandManager:
         return ReplyResult(messageContent, False, f"{message.author.mention}, invalid roll [{result.command}]")
 
       self.previousRoll[message.author] = result
-      return ReplyResult(messageContent, True, _buildResultMessage(result, message))
+      return ReplyResult(messageContent, True, buildResultMessage(result, message))
 
     if botCommand == Command.REROLL:
       previous = self.previousRoll.get(message.author)
@@ -85,7 +85,7 @@ class CommandManager:
         self.logger.info(f"No previous roll for {message.author}")
         return VoidResult(userCommand, False)
       result = self.roller.reroll(previous)
-      return ReplyResult(messageContent, True, _buildResultMessage(result, message))
+      return ReplyResult(messageContent, True, buildResultMessage(result, message))
 
     if botCommand == Command.HELP:
       return ReplyResult(messageContent, True, f"`{self.prefix}roll 2d4+1` - roll 2 d4 dice and add 1\n"
@@ -102,7 +102,7 @@ class CommandManager:
         return cmd
 
 
-def _buildResultMessage(roll: DiceRoll, message: discord.Message):
+def buildResultMessage(roll: DiceRoll, message: discord.Message):
   return f"{message.author.mention}\n" \
          f"result: {roll}\n" \
          f"sum ({roll.sum()} {'+' if roll.modifier >= 0 else '-'} {abs(roll.modifier)}) : **{roll.sum() + roll.modifier}**"
