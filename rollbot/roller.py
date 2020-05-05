@@ -1,13 +1,14 @@
 import logging
 import re
 import random
+from typing import List
 
 from rollbot.model.DiceRoll import DiceRoll
 
 logger = logging.getLogger(__name__)
 
 
-def roll(rollCommand: str):
+def roll(rollCommand: str) -> DiceRoll:
   if not re.fullmatch('\\d+d\\d+([+-]\\d+)?', rollCommand):
     logger.error(f"Failed to parse {rollCommand}")
     return DiceRoll(rollCommand, valid=False)
@@ -29,7 +30,7 @@ def roll(rollCommand: str):
                     modifier=modifier)
 
 
-def reroll(roll: DiceRoll):
+def reroll(roll: DiceRoll) -> DiceRoll:
   return DiceRoll(command=roll.command,
                   diceCount=roll.diceCount,
                   diceFaces=roll.diceFaces,
@@ -37,7 +38,7 @@ def reroll(roll: DiceRoll):
                   modifier=roll.modifier)
 
 
-def getResults(diceCount: int, diceFaces: int):
+def getResults(diceCount: int, diceFaces: int) -> List[int]:
   results = []
   for i in range(0, diceCount):
     results.append(random.randint(1, diceFaces))  # todo inject random function

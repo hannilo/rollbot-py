@@ -1,17 +1,21 @@
 import os
-import discord
 import logging
 
-import rollbot.log_config
 from dotenv import load_dotenv
 
+import rollbot.config.log_config
+
 from rollbot.Bot import Bot
+from rollbot.CommandManager import CommandManager
+from rollbot.config.BotConfig import BotConfig
 
 logger = logging.getLogger('bot')
 
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
 PREFIX = os.getenv('PREFIX')
+BUILD = os.getenv('BUILD')
 
-bot = Bot(PREFIX)
+botConfig = BotConfig(PREFIX, BUILD)
+bot = Bot(botConfig, CommandManager(botConfig))
 bot.run(TOKEN)
