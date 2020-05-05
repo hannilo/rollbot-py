@@ -22,7 +22,7 @@ def roll(rollCommand: str):
       dice, modifier = rollCommand.split('-')
       modifier = -int(modifier)
     if re.fullmatch('d\\d+', dice):
-        dice = '1' + dice
+      dice = '1' + dice
     count, faces = list(map(int, dice.split('d')))
     return DiceRoll(command=rollCommand,
                     diceCount=count,

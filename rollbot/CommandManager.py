@@ -64,14 +64,15 @@ class CommandManager:
 
     if botCommand == Command.ROLL:
       if not args:
-        return ReplyResult(messageContent, False, f"{message.author.mention}, mkm")
+        result = self.roller.roll('1d20')
+        self.logger.debug(f"{result}")
       elif len(args) > 1:
         return ReplyResult(messageContent, False, f"{message.author.mention}, 1 korraga atm")
       elif len(args[0]) > 100:
         return ReplyResult(messageContent, False, f"{message.author.mention}, that command is too long")
-
-      result = self.roller.roll(args[0])
-      self.logger.debug(f"{result}")
+      else:
+        result = self.roller.roll(args[0])
+        self.logger.debug(f"{result}")
 
       if not result.valid:
         return ReplyResult(messageContent, False, f"{message.author.mention}, invalid roll [{result.command}]")
