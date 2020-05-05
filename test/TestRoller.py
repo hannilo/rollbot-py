@@ -1,9 +1,12 @@
 import unittest
 
-from rollbot import roller
+from rollbot.Roller import Roller
 
 
 class TestRoller(unittest.TestCase):
+
   def test_results(self):
-    diceRoll = roller.roll('1d4')
-    self.assertEqual('1d4', diceRoll.command)
+    roller = Roller(randomFn=lambda x, y: 1)
+    diceRoll = roller.roll('2d4')
+    self.assertEqual('2d4', diceRoll.command)
+    self.assertEqual([1, 1], diceRoll.resultList)
