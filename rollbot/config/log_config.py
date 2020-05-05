@@ -8,6 +8,7 @@ if BOT_LOGLEVEL == 'DEBUG':
 
 logging_config = dict(
   version=1,
+  disable_existing_loggers=True,
   formatters={
     'f': {'format':
             '%(levelname)-8s %(asctime)s %(name)-18s  %(message)s'}
@@ -16,13 +17,13 @@ logging_config = dict(
     'console': {
       'class': 'logging.StreamHandler',
       'formatter': 'f',
-      'level': LOGLEVEL
+      'level': LOGLEVEL,
     },
     'file': {
       'class': 'logging.handlers.RotatingFileHandler',
       'formatter': 'f',
       'filename': 'bot.log',
-      'level': LOGLEVEL
+      'level': LOGLEVEL,
     }
   },
   root={
@@ -32,6 +33,10 @@ logging_config = dict(
 )
 
 dictConfig(logging_config)
+
+logging.getLogger('discord').setLevel(logging.WARNING)
+logging.getLogger('websockets').setLevel(logging.ERROR)
+logging.getLogger('asyncio').setLevel(logging.ERROR)
 
 logger = logging.getLogger()
 logger.info(f"Logging level: {LOGLEVEL}")
