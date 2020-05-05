@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def roll(rollCommand: str):
-  if not re.fullmatch('\\d+d\\d+([+-]\\d+)?', rollCommand):
+  if not re.fullmatch('(\\d+)?d\\d+([+-]\\d+)?', rollCommand):
     logger.error(f"Failed to parse {rollCommand}")
     return DiceRoll(rollCommand, valid=False)
   else:
@@ -21,6 +21,8 @@ def roll(rollCommand: str):
     if '-' in rollCommand:
       dice, modifier = rollCommand.split('-')
       modifier = -int(modifier)
+    if re.fullmatch('d\\d+', dice):
+        dice = '1' + dice
     count, faces = list(map(int, dice.split('d')))
     return DiceRoll(command=rollCommand,
                     diceCount=count,
