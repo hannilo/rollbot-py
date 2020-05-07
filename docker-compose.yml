@@ -1,0 +1,7 @@
+services:
+  bot:
+    build: .
+    image: hannilo/rollbot-py
+    container_name: rollbot
+
+version: "2"

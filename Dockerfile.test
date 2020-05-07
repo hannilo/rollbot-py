@@ -1,0 +1,19 @@
+FROM python:3.8-alpine
+
+WORKDIR /
+
+# update gcc and stuff
+RUN apk add build-base
+
+COPY Pipfile* ./
+
+RUN pip install --no-cache-dir pipenv && \
+    pipenv install --system --deploy --clear
+
+ADD rollbot /rollbot
+ADD test /test
+COPY bot.py /
+COPY run_tests.sh /
+RUN chmod +x /run_tests.sh
+COPY .env /
+CMD ["sh", "/run_tests.sh"]
