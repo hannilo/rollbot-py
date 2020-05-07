@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict
+from typing import Dict, List
 
 import discord
 
@@ -40,7 +40,7 @@ class CommandManager:
   config: BotConfig
   roller: Roller
 
-  previousRoll: Dict[discord.User, DiceRoll] = {}
+  previousRoll: Dict[discord.User, List[DiceRoll]] = {}
 
   def __init__(self, botConfig: BotConfig, roller: Roller):
     self.prefix = botConfig.prefix
@@ -73,8 +73,8 @@ class CommandManager:
       result = self.roller.roll(args[0])
       self.logger.debug(f"{result}")
 
-      if not result.valid:
-        return ReplyResult(messageContent, False, f"{message.author.mention}, invalid roll [{result.command}]")
+      if not result[0].valid:
+        return ReplyResult(messageContent, False, f"{message.author.mention}, invalid roll [{result[0].command}]")
 
       self.previousRoll[message.author] = result
       return ReplyResult(messageContent, True, buildResultMessage(result, message))
@@ -102,7 +102,21 @@ class CommandManager:
         return cmd
 
 
-def buildResultMessage(roll: DiceRoll, message: discord.Message):
-  return f"{message.author.mention}\n" \
-         f"result: {roll}\n" \
-         f"sum ({roll.sum()} {'+' if roll.modifier >= 0 else '-'} {abs(roll.modifier)}) : **{roll.sum() + roll.modifier}**"
+def buildResultMessage(rolls: List[DiceRoll], message: discord.Message) -> str:
+  reply = f"{message.author.mention}"
+  if len(rolls) == 1:
+    roll = rolls[0]
+    return f"{reply}\n" \
+           f"result: {roll}\n" \
+           f"sum ({roll.sum()} {'+' if roll.modifier >= 0 else '-'} {abs(roll.modifier)}) : **{roll.total()}**"
+  else:
+    grandTotal = sum(map(lambda r: r.total(), rolls))
+    totalList = '('
+    for i in range(len(rolls)):
+      if i != 0:
+        totalList += ' + '
+      totalList += str(rolls[i].total())
+    totalList += ')'
+    return f"{reply}\n" \
+           f"result: {rolls}\n" \
+           f"grand total {totalList}: **{grandTotal}**"
