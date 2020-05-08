@@ -1,3 +1,3 @@
 #!/bin/sh
 echo "running RollerTest"
-python3 -m unittest /test/RollerTest.py
+python3 -m unittest test.RollerTest
