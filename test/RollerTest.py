@@ -4,7 +4,7 @@ from rollbot.Roller import Roller
 from rollbot.model.DiceRoll import DiceRoll
 
 
-class TestRoller(unittest.TestCase):
+class RollerTest(unittest.TestCase):
   roller = Roller(randomFn=lambda x, y: 1)
 
   def test_results(self):
