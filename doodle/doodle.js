@@ -91,12 +91,16 @@ function sendMail() {
 
     //check if event exits for day i, handle
     if (!stateCell.isBlank()) {
-      var events = CalendarApp.getCalendarById(CALENDAR_ID).getEventsForDay(new Date(dateCell.getValue()));
+      var events = CalendarApp.getCalendarById(CALENDAR_ID).getEventsForDay(new Date(dateCell.getValue()), {search: 'D&D'});
       events.forEach(function (e) {
         console.log("event for " + dateCell.getValue() + " - " + e.getTitle() + ' ' + e.getId())
       });
       if (events.length > 1) {
         console.error(dateCell.getValue() + " has too many events : " + events.length)
+        for (i = 1; i < events.length; i++) {
+          console.error("deleting " + events[i].getTitle() + " ("+ events[i].getId() +")")
+          events[i].deleteEvent()
+        }
       }
 
       var eventId;
