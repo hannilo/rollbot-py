@@ -101,6 +101,7 @@ function sendMail() {
           console.error("deleting " + events[i].getTitle() + " ("+ events[i].getId() +")")
           events[i].deleteEvent()
         }
+        eventIdCell.setValue(events[0].getId())
       }
 
       var eventId;
@@ -138,6 +139,13 @@ function sendMail() {
         } else {
           commentCell.clear()
         }
+      }
+      if (maybeCell.getValue() < 5) {
+        console.warn('Not enough people to hold event on ' + dateCell.getValue() + ', deleting : ' + event.getId())
+        event.deleteEvent()
+        stateCell.setValue('Deleted event')
+        commentCell.setValue('Someone changed their mind')
+        eventIdCell.setValue('')
       }
 
     }
