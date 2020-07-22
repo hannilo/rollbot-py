@@ -3,7 +3,7 @@ FROM python:3.8-alpine
 WORKDIR /
 
 # update gcc and stuff
-RUN apk add build-base
+RUN apk add --no-cache build-base
 
 COPY Pipfile* ./
 
