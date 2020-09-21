@@ -19,11 +19,11 @@ class Roller:
     rollCommand - in the form of LxMdN[+-]P where
 
     | L(optional) = times to complete
-    | M - count of dice in a roll
+    | M(optional) - count of dice in a roll
     | N - dice faces
-    | [+-]P(Optional) - modifier to add to each MdN roll
+    | [+-]P(optional) - modifier to add to each MdN roll
     """
-    if not re.fullmatch('(\\dx)?\\d+d\\d+([+-]\\d+)?', rollCommand):
+    if not re.fullmatch('(\\dx)?(\\d+)?d\\d+([+-]\\d+)?', rollCommand):
       logger.error(f"Failed to parse {rollCommand}")
       return [DiceRoll(rollCommand, valid=False)]
 
@@ -41,7 +41,7 @@ class Roller:
     if '-' in rollCommand:
       dice, modifier = dice.split('-')
       modifier = -int(modifier)
-    count, faces = list(map(int, dice.split('d')))
+    count, faces = list(map(lambda x: int(x) if x != '' else 1, dice.split('d')))
     result = []
     for _ in range(times):
       result.append(DiceRoll(command=rollCommand,
