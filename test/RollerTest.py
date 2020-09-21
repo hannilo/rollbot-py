@@ -55,3 +55,12 @@ class RollerTest(unittest.TestCase):
     self.assertEqual('2d4+2', diceRolls[0].command)
     self.assertEqual([1, 1], diceRolls[0].resultList)
     self.assertEqual(4, diceRolls[0].total())
+
+  def test_single_dice(self):
+    diceroll = self.roller.roll('d20')[0]
+    self.assertEqual([1], diceroll.resultList)
+
+  def test_single_dice_mod(self):
+    diceroll = self.roller.roll('d20+2')[0]
+    self.assertEqual([1], diceroll.resultList)
+    self.assertEqual(3, diceroll.total())
