@@ -19,15 +19,9 @@ logging_config = dict(
       'formatter': 'f',
       'level': LOGLEVEL,
     },
-    'file': {
-      'class': 'logging.handlers.RotatingFileHandler',
-      'formatter': 'f',
-      'filename': 'bot.log',
-      'level': LOGLEVEL,
-    }
   },
   root={
-    'handlers': ['console', 'file'],
+    'handlers': ['console'],
     'level': LOGLEVEL,
   },
 )

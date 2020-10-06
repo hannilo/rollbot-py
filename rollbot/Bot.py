@@ -1,6 +1,6 @@
 import logging
 import discord
-from rollbot.CommandManager import CommandManager, ReplyResult
+from rollbot.CommandHandler import CommandHandler, ReplyResult
 from rollbot.config.BotConfig import BotConfig
 
 
@@ -12,13 +12,13 @@ class Bot(discord.Client):
   prefix: str
   build: str
 
-  manager: CommandManager
+  handler: CommandHandler
 
-  def __init__(self, config: BotConfig, commandManager: CommandManager):
+  def __init__(self, config: BotConfig, commandHandler: CommandHandler):
     super(Bot, self).__init__()
     self.prefix = config.prefix
     self.build = config.build
-    self.manager = commandManager
+    self.handler = commandHandler
     self.logger.info(f"Will be reacting to '{self.prefix}'")
 
   async def on_ready(self):
@@ -31,6 +31,6 @@ class Bot(discord.Client):
       return
 
     if str(message.content).startswith(self.prefix):
-      result = self.manager.handle(message)
+      result = self.handler.handle(message)
       if isinstance(result, ReplyResult):
         await message.channel.send(result.reply)
