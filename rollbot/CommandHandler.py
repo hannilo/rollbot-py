@@ -115,8 +115,8 @@ class CommandHandler:
     reply = f"{message.author.mention}"
     if len(rolls) == 1:
       roll = rolls[0]
-      return f"{reply}\n" \
-             f"result: {roll if self.config.debug else f'{roll.resultList}'}\n" \
+      return f"{reply} rolling `{roll.command}`\n" \
+             f"result: {f'`{roll}`' if self.config.debug else f'{roll.resultList}'}\n" \
              f"sum ({roll.sum()} {'+' if roll.modifier >= 0 else '-'} {abs(roll.modifier)}) : **{roll.total()}**"
     else:
       grandTotal = sum(map(lambda r: r.total(), rolls))
@@ -126,6 +126,6 @@ class CommandHandler:
           totalList += ' + '
         totalList += str(rolls[i].total())
       totalList += ')'
-      return f"{reply}\n" \
-             f"result: {rolls if self.config.debug else [roll.resultList for roll in rolls]}\n" \
+      return f"{reply} rolling `{rolls[0].command}`\n" \
+             f"result: {f'`{rolls}`' if self.config.debug else [roll.resultList for roll in rolls]}\n" \
              f"grand total {totalList}: **{grandTotal}**"
