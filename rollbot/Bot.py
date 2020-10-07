@@ -23,8 +23,7 @@ class Bot(discord.Client):
 
   async def on_ready(self):
     self.logger.info(f"{self.user} has connected")
-    for guild in self.guilds:
-      self.logger.info(f"guild: {guild}")
+    self.logger.info(f"guilds: {[guild.name for guild in self.guilds]}")
 
   async def on_message(self, message: discord.Message):
     if message.author == self.user:

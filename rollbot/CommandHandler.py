@@ -84,7 +84,9 @@ class CommandHandler:
 
   def roll(self, userCommand: str, args: [str], message: discord.Message):
     if not args:
-      if userCommand != self.config.prefix:
+      self.logger.debug(f"missing args : {userCommand}")
+      if userCommand == f'{self.prefix}roll' or userCommand == self.prefix + self.prefix:
+        self.logger.debug(f"defaulting {userCommand} to d20")
         args = ['d20']
       else:
         return VoidResult(message.content, False)
