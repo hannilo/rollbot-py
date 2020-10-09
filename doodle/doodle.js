@@ -36,75 +36,75 @@ function hideRows() {
 }
 
 function sendMail() {
-  var CALENDAR_ID = 'XXXXXXXXXXXX@group.calendar.google.com';
-  var SHEETS_LINK = 'https://docs.google.com/spreadsheets/d/XXXXXXXXXXXXXXXXXXX';
-  var CURRENT_USER = Session.getActiveUser().getEmail();
+  const CALENDAR_ID = 'XXXXXXXXXXXX@group.calendar.google.com';
+  const SHEETS_LINK = 'https://docs.google.com/spreadsheets/d/XXXXXXXXXXXXXXXXXXX';
+  const CURRENT_USER = Session.getActiveUser().getEmail();
 
-  //randomize script start time - attempt to disperse execution and reduce races
-  console.info("init at : " + new Date());
-  var randomWaitTime = Math.floor(Math.random() * 4) + 1;
-  var randomId = Math.floor(Math.random() * 1024) + 1;
-  console.info("run" + randomId + " by " + CURRENT_USER + " waiting : " + randomWaitTime);
-  Utilities.sleep(1000 * randomWaitTime);
-  console.info("run" + randomId + " by " + CURRENT_USER + " continue at : " + new Date());
+  const PLAYERCOUNT = 5;
+  const COL_DATE = 1;
+  const COL_WEEKDAY = 2;
+  const COL_YES = COL_WEEKDAY + PLAYERCOUNT + 1;
+  const COL_MAYBE = COL_YES + 1;
+  const COL_STATE = COL_YES + 2;
+  const COL_EVENTID = COL_YES + 3;
+  const COL_COMMENT = COL_YES + 4;
 
-  var ss = SpreadsheetApp.getActiveSpreadsheet(); //pretty hopeless to deduplicate
-  var doodle = ss.getSheetByName("Doodle");
-  var data = ss.getSheetByName("Data");
+  const doodle = SpreadsheetApp.getActive().getSheetByName('Doodle'); //pretty hopeless to deduplicate
 
-  var maxHiddenRow = +doodle.getRange(1, 10).getCell(1, 1).getValue().toString().split(':')[0]; //watman
-  var lookaheadDays = 25;
+  const maxHiddenRow = +doodle.getRange(1, 10).getCell(1, 1).getValue().toString().split(':')[0]; //watman
+  const LOOK_AHEAD = 25;
 
-  //check for a lock
-  var runRange = doodle.getRange(1, 12, 1);
-  var idleCell = runRange.getCell(1, 1);
-  var isIdle = idleCell.isBlank();
-  if (isIdle) {
-    idleCell.setValue("run" + randomId);
-    console.info(randomId + " script is idle : " + idleCell.getValue() + " by " + CURRENT_USER);
-  } else {
-    console.info("run" + randomId + " by " + CURRENT_USER + " detected running script : " + idleCell.getValue() + ", aborted");
+
+  const CORONATIME = false;
+  if (CORONATIME) {
+    /* since literally everyone has free time now */
+    console.info("it's CORONATIME");
     return;
   }
 
-  var dateRange = doodle.getRange(maxHiddenRow + 1, 1, lookaheadDays);
+  const idleCell = doodle.getRange(1, 12, 1).getCell(1, 1);
+  const runId = reserveRun(CURRENT_USER, doodle, idleCell)
+  if (!runId) {
+    return;
+  }
 
-  var yesRange = doodle.getRange(maxHiddenRow + 1, 8, lookaheadDays);     // H
-  var maybeRange = doodle.getRange(maxHiddenRow + 1, 9, lookaheadDays);   // I
-  var stateRange = doodle.getRange(maxHiddenRow + 1, 10, lookaheadDays);  // J
-  var eventIdRange = doodle.getRange(maxHiddenRow + 1, 11, lookaheadDays); // K - hidden
-  var commentRange = doodle.getRange(maxHiddenRow + 1, 12, lookaheadDays); // L
+  const dateRange = doodle.getRange(maxHiddenRow + 1, COL_DATE, LOOK_AHEAD);       // A
+  const yesRange = doodle.getRange(maxHiddenRow + 1, COL_YES, LOOK_AHEAD);         // H
+  const maybeRange = doodle.getRange(maxHiddenRow + 1, COL_MAYBE, LOOK_AHEAD);     // I
+  const stateRange = doodle.getRange(maxHiddenRow + 1, COL_STATE, LOOK_AHEAD);     // J
+  const eventIdRange = doodle.getRange(maxHiddenRow + 1, COL_EVENTID, LOOK_AHEAD); // K - hidden
+  const commentRange = doodle.getRange(maxHiddenRow + 1, COL_COMMENT, LOOK_AHEAD); // L
 
-  var emails = getEmails(data);
+  const emails = getEmails(SpreadsheetApp.getActive().getSheetByName("Data"), PLAYERCOUNT);
   console.log("init emails : " + emails);
   verifyFill(maxHiddenRow, doodle, emails, SHEETS_LINK);
 
-  for (var i = 1; i < lookaheadDays; i++) {
-    var maybeCell = maybeRange.getCell(i, 1);
-    var yesCell = yesRange.getCell(i, 1);
-    var dateCell = dateRange.getCell(i, 1);
-    var stateCell = stateRange.getCell(i, 1);
-    var eventIdCell = eventIdRange.getCell(i, 1);
-    var commentCell = commentRange.getCell(i, 1);
-    var rown = maybeCell.getRow();
+  for (let i = 1; i < LOOK_AHEAD; i++) {
+    const maybeCell = maybeRange.getCell(i, 1);
+    const yesCell = yesRange.getCell(i, 1);
+    const dateCell = dateRange.getCell(i, 1);
+    const stateCell = stateRange.getCell(i, 1);
+    const eventIdCell = eventIdRange.getCell(i, 1);
+    const commentCell = commentRange.getCell(i, 1);
+    const rown = maybeCell.getRow();
     console.log(("row: " + rown + " maybe: " + maybeCell.getValue() + " yes: " + yesCell.getValue() + " date: " + dateCell.getValue()));
 
     //check if event exits for day i, handle
     if (!stateCell.isBlank()) {
-      var events = CalendarApp.getCalendarById(CALENDAR_ID).getEventsForDay(new Date(dateCell.getValue()), {search: 'D&D'});
+      const events = CalendarApp.getCalendarById(CALENDAR_ID).getEventsForDay(new Date(dateCell.getValue()), {search: 'D&D'});
       events.forEach(function (e) {
         console.log("event for " + dateCell.getValue() + " - " + e.getTitle() + ' ' + e.getId())
       });
       if (events.length > 1) {
         console.error(dateCell.getValue() + " has too many events : " + events.length)
         for (i = 1; i < events.length; i++) {
-          console.error("deleting " + events[i].getTitle() + " ("+ events[i].getId() +")")
+          console.error("deleting " + events[i].getTitle() + " (" + events[i].getId() + ")")
           events[i].deleteEvent()
         }
         eventIdCell.setValue(events[0].getId())
       }
 
-      var eventId;
+      let eventId;
       if (eventIdCell.isBlank()) {
         if (events.length === 0) {
           console.error(dateCell.getValue() + " has comment, and no events are available")
@@ -119,7 +119,7 @@ function sendMail() {
       }
 
       console.info(dateCell.getValue() + " has event " + eventId);
-      var event = CalendarApp.getCalendarById(CALENDAR_ID).getEventById(eventId);
+      const event = CalendarApp.getCalendarById(CALENDAR_ID).getEventById(eventId);
       if (!event) {
         stateCell.setBackground("#ff9a9a");
         stateCell.setValue('Event has been deleted')
@@ -132,6 +132,7 @@ function sendMail() {
           return guest.getGuestStatus() == 'NO'; //coerce
         });
         stateCell.setValue('Invite sent [' + accepted.length + '/5 accepted]');
+
         if (declined.length > 0) {
           commentCell.setValue('NB! Declined by: ' + declined.map(function (guest) {
             return guest.getEmail()
@@ -139,13 +140,14 @@ function sendMail() {
         } else {
           commentCell.clear()
         }
-      }
-      if (maybeCell.getValue() < 5) {
-        console.warn('Not enough people to hold event on ' + dateCell.getValue() + ', deleting : ' + event.getId())
-        event.deleteEvent()
-        stateCell.setValue('Deleted event')
-        commentCell.setValue('Someone changed their mind')
-        eventIdCell.setValue('')
+
+        if (maybeCell.getValue() < 5) {
+          console.warn('Not enough people to hold event on ' + dateCell.getValue() + ', deleting : ' + event.getId())
+          event.deleteEvent()
+          stateCell.setValue('Deleted event')
+          commentCell.setValue('Someone changed their mind')
+          eventIdCell.setValue('')
+        }
       }
 
     }
@@ -153,17 +155,17 @@ function sendMail() {
     //if there is no event, but there should be
     if (stateCell.isBlank() && +maybeCell.getValue() >= 5) {
       stateCell.setValue('Sending invite')
-      var message = dateCell.getValue() + ' on D&D night. '
+      let message = dateCell.getValue() + ' on D&D night. '
       if (+yesCell.getValue() >= 5) {
         message += 'Ja lausa 5 kindlat JAH vastust on. Uskumatu!'
       }
       console.info(message)
-      var date = dateCell.getValue()
+      const date = dateCell.getValue()
       date.setHours(20)
-      var endDate = dateCell.getValue()
+      const endDate = dateCell.getValue()
       endDate.setHours(23)
       console.log('date: ' + date + ' end: ' + endDate)
-      var event = CalendarApp.getCalendarById(CALENDAR_ID).createEvent('D&D', date, endDate, {
+      const event = CalendarApp.getCalendarById(CALENDAR_ID).createEvent('D&D', date, endDate, {
         guests: emails.join(','),
         sendInvites: true,
         description: message + ' Link: ' + SHEETS_LINK
@@ -172,20 +174,19 @@ function sendMail() {
       eventIdCell.setValue(event.getId())
       stateCell.setValue('Invite sent')
     }
+
   } //end for
 
   idleCell.clear();
-  console.info("run" + randomId + " by " + CURRENT_USER + " finished")
+  console.info("run" + runId + " by " + CURRENT_USER + " finished")
 }
 
 function verifyFill(maxHiddenRow, doodle, emails, SHEETS_LINK) {
-  for (var i = 1; i <= 5; i++) {
+  for (var i = 1; i <= emails.length; i++) {
     var userRange = doodle.getRange(maxHiddenRow + 1, 2 + i, 10, 1)
-    console.log("[verifyFill] " + emails[i - 1] + " range " + userRange.getA1Notation())
     var emptyCells = []
     for (var j = 1; j <= 10; j++) {
       var checkCell = userRange.getCell(j, 1)
-      console.log("[verifyFill] cell" + j + " " + checkCell.getA1Notation())
       if (checkCell.isBlank()) {
         emptyCells.push(checkCell)
         console.log("[verifyFill] empty " + emails[i - 1] + " " + emptyCells.length)
@@ -202,9 +203,32 @@ function verifyFill(maxHiddenRow, doodle, emails, SHEETS_LINK) {
   }
 }
 
+/**
+ * Returns a run ID if available, otherwise null
+ */
+function reserveRun(user, doodle, idleCell) {
+  //randomize script start time - attempt to disperse execution and reduce races
+  console.info("init at : " + new Date());
+  let randomWaitTime = Math.floor(Math.random() * 4) + 1;
+  let randomId = Math.floor(Math.random() * 1024) + 1;
+  console.info("run" + randomId + " by " + user + " waiting : " + randomWaitTime);
+  Utilities.sleep(1000 * randomWaitTime);
+  console.info("run" + randomId + " by " + user + " continue at : " + new Date());
 
-function getEmails(dataSheet) {
-  return dataSheet.getRange(1, 1, 5).getValues().map(function (arr) {
+  //check for a lock
+  if (idleCell.isBlank()) {
+    idleCell.setValue("run" + randomId);
+    console.info(randomId + " script is idle : " + idleCell.getValue() + " by " + user);
+    return randomId;
+  } else {
+    console.info("run" + randomId + " by " + user + " detected running script : " + idleCell.getValue() + ", aborted");
+    return null;
+  }
+}
+
+
+function getEmails(dataSheet, playerCount) {
+  return dataSheet.getRange(1, 1, playerCount).getValues().map(function (arr) {
     return arr[0]
   }).filter(function (str) {
     return !!str
