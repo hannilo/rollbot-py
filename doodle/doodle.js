@@ -67,12 +67,12 @@ function sendMail() {
 
   const idleCell = doodle.getRange(1, COL_COMMENT, 1).getCell(1, 1);
 
-  const lock = LockService.getScriptLock();
+  const lock = LockService.getDocumentLock();
   try {
-    lock.waitLock(3000);
-    return;
+    lock.waitLock(500);
   } catch (e) {
-    console.warn(`${CURRENT_USER} could not obtain lock after 3 seconds.`);
+    console.warn(`${CURRENT_USER} could not obtain lock after 0.5 seconds.`);
+    return;
   }
   const runId = reserveRun(CURRENT_USER, Math.max(emails.indexOf(CURRENT_USER), 0), doodle, idleCell)
   if (!runId) {
@@ -217,8 +217,9 @@ function verifyFill(runId, maxHiddenRow, doodle, emails, SHEETS_LINK) {
  */
 function reserveRun(user, userIdx, doodle, idleCell) {
   //randomize script start time - attempt to disperse execution and reduce races
-  console.info(`[reserveRun] init at : ${new Date()} by ${user}`);
-  let randomWaitTime = Math.floor(Math.random() * 1000) + userIdx * 1000;
+
+  //console.info(`[reserveRun] init at : ${new Date()} by ${user}`);
+  let randomWaitTime = 1000 //Math.floor(Math.random() * 1000) + userIdx * 1000;
   let randomId = Math.floor(Math.random() * 1024) + 1;
   console.info(`[${randomId}] run${randomId} by ${user} waiting : ${randomWaitTime}ms`);
   Utilities.sleep(randomWaitTime);
