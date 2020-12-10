@@ -33,6 +33,11 @@ class ReplyResult(CommandResult):
   reply: str
 
 
+@dataclass
+class RollResult(ReplyResult): #smth smth use abc
+  rolls: List[DiceRoll]
+
+
 class CommandHandler:
   logger = logging.getLogger(__name__)
 
@@ -102,7 +107,7 @@ class CommandHandler:
       return ReplyResult(message.content, False, f"{message.author.mention}, invalid roll [{result[0].command}]")
 
     self.previousRoll[message.author] = result
-    return ReplyResult(message.content, True, self.buildResultMessage(result, message))
+    return RollResult(message.content, True, self.buildResultMessage(result, message), result)
 
   def reroll(self, message):
     previous = self.previousRoll.get(message.author)
@@ -111,7 +116,7 @@ class CommandHandler:
       self.logger.info(message)
       return VoidResult(message, False)
     result = self.roller.reroll(previous)
-    return ReplyResult(message.content, True, self.buildResultMessage(result, message))
+    return RollResult(message.content, True, self.buildResultMessage(result, message), result)
 
   def buildResultMessage(self, rolls: List[DiceRoll], message: discord.Message) -> str:
     reply = f"{message.author.mention}"

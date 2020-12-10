@@ -16,7 +16,7 @@ function hideRows() {
   cutoff.setDate(cutoff.getDate() - 1);
   var cell;
   var cellDate;
-  var dateCell = sheet.getRange(1, 10).getCell(1, 1);
+  var dateCell = sheet.getRange(1, 11).getCell(1, 1);
   var maxHiddenRow = dateCell.getValue().toString().split(':')[0];
   if (maxHiddenRow > 1) {
     sheet.hideRows(2, maxHiddenRow - 1);
@@ -66,6 +66,14 @@ function sendMail() {
   console.log(`[${CURRENT_USER}] init emails : ${emails}`);
 
   const idleCell = doodle.getRange(1, COL_COMMENT, 1).getCell(1, 1);
+
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(3000);
+    return;
+  } catch (e) {
+    console.warn(`${CURRENT_USER} could not obtain lock after 3 seconds.`);
+  }
   const runId = reserveRun(CURRENT_USER, Math.max(emails.indexOf(CURRENT_USER), 0), doodle, idleCell)
   if (!runId) {
     return;
@@ -178,6 +186,7 @@ function sendMail() {
   } //end for
 
   idleCell.clear();
+  lock.releaseLock();
   console.info(`[${runId}] run${runId} by ${CURRENT_USER} finished`)
 }
 
@@ -228,7 +237,8 @@ function reserveRun(user, userIdx, doodle, idleCell) {
 
 
 function getEmails(dataSheet, playerCount) {
-  return dataSheet.getRange(1, 1, playerCount).getValues().map(function (arr) {
+  // getRange(row, column, numRows, numColumns), 1-indexed
+  return dataSheet.getRange(2, 1, playerCount).getValues().map(function (arr) {
     return arr[0]
   }).filter(function (str) {
     return !!str
