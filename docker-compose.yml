@@ -1,5 +1,5 @@
 services:
-  bot:
+  rollbot:
     build: .
     image: hannilo/rollbot-py
     container_name: rollbot
