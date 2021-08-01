@@ -74,7 +74,7 @@ class CommandHandler:
       self.logger.debug(f"Command args: {args}")
 
     if botCommand == Command.ROLL:
-      if message.channel in self.config.channels:
+      if message.channel.name in self.config.channels:
         return self.roll(userCommand, args, message)
       else:
         self.logger.debug(f'{message.channel} not in set channels: {self.config.channels}')
