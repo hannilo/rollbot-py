@@ -34,7 +34,7 @@ class ReplyResult(CommandResult):
 
 
 @dataclass
-class RollResult(ReplyResult): #smth smth use abc
+class RollResult(ReplyResult):  # smth smth use abc
   rolls: List[DiceRoll]
 
 
@@ -74,11 +74,15 @@ class CommandHandler:
       self.logger.debug(f"Command args: {args}")
 
     if botCommand == Command.ROLL:
-      return self.roll(userCommand, args, message)
+      if message.channel in self.config.channels:
+        return self.roll(userCommand, args, message)
+      else:
+        self.logger.debug(f'{message.channel} not in set channels: {self.config.channels}')
     if botCommand == Command.REROLL:
       return self.reroll(message)
     if botCommand == Command.HELP:
-      shorthandMessage = f', using `{self.prefix} <dice>` will default to `!roll <dice>`' if self.config.shorthand else ''
+      shorthandMessage = f', using `{self.prefix} <dice>` ' \
+                         f'will default to `!roll <dice>`' if self.config.shorthand else ''
       return ReplyResult(message.content, True,
                          f"`{self.prefix}roll 2d4+1` - roll 2 d4 dice and add 1{shorthandMessage}\n"
                          f"`{self.prefix}reroll`         - reroll your last roll\n"
@@ -86,6 +90,8 @@ class CommandHandler:
     if botCommand == Command.ABOUT:
       return ReplyResult(message.content, True, f"Build: **{self.config.build}**\n"
                                                 f"Source: https://github.com/hannilo/rollbot-py")
+    else:
+      return VoidResult(message.content, False)
 
   def roll(self, userCommand: str, args: [str], message: discord.Message):
     if not args:

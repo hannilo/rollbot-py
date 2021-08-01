@@ -16,10 +16,11 @@ load_dotenv()
 TOKEN = os.getenv('TOKEN')
 PREFIX = os.getenv('PREFIX')
 SHORTHAND = os.getenv('ALLOW_SHORTHAND') == 'true'
+CHANNELS = os.getenv('ALLOWED_CHANNELS', '').split(',') or list()
 DEBUG = os.getenv('BUILD') == 'true'
 BUILD = os.getenv('BUILD')
 
-botConfig = BotConfig(PREFIX, SHORTHAND, DEBUG, BUILD)
+botConfig = BotConfig(PREFIX, CHANNELS, SHORTHAND, DEBUG, BUILD)
 roller = Roller()
 
 bot = Bot(botConfig, CommandHandler(botConfig, roller))
