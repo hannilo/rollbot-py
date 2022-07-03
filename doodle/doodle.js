@@ -1,3 +1,12 @@
+const PLAYERCOUNT = 7;
+const COL_DATE = 1;
+const COL_WEEKDAY = 2;
+const COL_YES = COL_WEEKDAY + PLAYERCOUNT + 1;
+const COL_MAYBE = COL_YES + 1;
+const COL_STATE = COL_YES + 2;
+const COL_EVENTID = COL_YES + 3;
+const COL_COMMENT = COL_YES + 4;
+
 function onOpen() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var menuItems = [{name: 'HideRows', functionName: 'hideRows'}, {name: 'SendMail', functionName: 'sendMail'}];
@@ -14,10 +23,12 @@ function hideRows() {
   var count = rows.getHeight();
   var cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 1);
+
   var cell;
   var cellDate;
-  var dateCell = sheet.getRange(1, 11).getCell(1, 1);
+  var dateCell = sheet.getRange(1, COL_STATE).getCell(1, 1);
   var maxHiddenRow = dateCell.getValue().toString().split(':')[0];
+  console.log(`[hideRows] cutoff : ${cutoff}; max hidden : ${maxHiddenRow}`);
   if (maxHiddenRow > 1) {
     sheet.hideRows(2, maxHiddenRow - 1);
   }
@@ -39,15 +50,6 @@ function sendMail() {
   const CALENDAR_ID = 'XXXXXXXXXXXX@group.calendar.google.com';
   const SHEETS_LINK = 'https://docs.google.com/spreadsheets/d/XXXXXXXXXXXXXXXXXXX';
   const CURRENT_USER = Session.getActiveUser().getEmail();
-
-  const PLAYERCOUNT = 6;
-  const COL_DATE = 1;
-  const COL_WEEKDAY = 2;
-  const COL_YES = COL_WEEKDAY + PLAYERCOUNT + 1;
-  const COL_MAYBE = COL_YES + 1;
-  const COL_STATE = COL_YES + 2;
-  const COL_EVENTID = COL_YES + 3;
-  const COL_COMMENT = COL_YES + 4;
 
   const doodle = SpreadsheetApp.getActive().getSheetByName('Doodle'); //pretty hopeless to deduplicate
 
