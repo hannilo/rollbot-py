@@ -1,7 +1,7 @@
 services:
   rollbot:
     build: .
-    image: hannilo/rollbot-py
+    image: "hannilo/rollbot-py"
     container_name: rollbot
 
 version: "2"

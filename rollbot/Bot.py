@@ -15,7 +15,8 @@ class Bot(discord.Client):
   handler: CommandHandler
 
   def __init__(self, config: BotConfig, commandHandler: CommandHandler):
-    super(Bot, self).__init__()
+    intents = discord.Intents.all()  # yolo
+    super(Bot, self).__init__(intents=intents)
     self.prefix = config.prefix
     self.build = config.build
     self.handler = commandHandler
