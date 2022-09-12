@@ -7,3 +7,7 @@ A Discord bot for rolling dice.
 
 #### Why
 Because roll20 was broken.
+
+#### RPi deployment
+* Make sure `libseccomp2` is up-to-date (https://packages.debian.org/sid/armhf/libseccomp2/download)
+

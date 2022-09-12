@@ -1,3 +1,3 @@
 #!/bin/sh
 docker build --no-cache -t rollbot . && \
-docker run --name=rollbot --restart=always -d rollbot
+docker run --name=rollbot --restart=on-failure:3 -d rollbot
