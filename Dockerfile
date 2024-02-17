@@ -13,5 +13,4 @@ RUN pip install --no-cache-dir pipenv && \
 
 ADD rollbot /rollbot
 COPY bot.py /
-COPY .env /
 CMD ["python3", "bot.py"]
